@@ -441,7 +441,6 @@ class CpuOperations {
      std::cerr << "Axis must be zero or one!";
      exit(1);
     }
-<<<<<<< HEAD
 }
   static Vector<T> GetOrthogonal(const Vector<T> &a) {
     if ( a.mean() == 0 )
@@ -466,9 +465,6 @@ class CpuOperations {
     }
     return b;
 }
-=======
-  }
->>>>>>> 7c9ab46c7be2e28f9e842b147b5c8acc1bf396e2
 };
 }  // namespace Nice
 #endif  // CPP_INCLUDE_CPU_OPERATIONS_H_
