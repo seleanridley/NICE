@@ -73,6 +73,20 @@ class CpuOperations {
     // Matrix-matrix multiplication
     return a * b;
   }
+  /// This is a function that adds each element in the matrix to a scalar and
+  /// returns the resulting matrix.
+  ///
+  /// \param a
+  /// Input Matrix
+  /// \param scalar
+  /// Input Scalar
+  ///
+  /// \return
+  /// This function returns a matrix that is the resulatant of adding the
+  /// input matrix and scalar.
+  ///
+  /// \sa
+  /// \ref Add(const Matrix<T> &a, const Matrix<T> &b)
   static Matrix<T> Add(const Matrix<T> &a, const T &scalar) {
       // Does not work if matrix is empty.
       if (a.rows() == 0) {
@@ -84,6 +98,20 @@ class CpuOperations {
         return (a.array() + scalar);
     }
   }
+  /// This is a function that adds two matricies and returns the resulting
+  /// matrix.
+  ///
+  /// \param a
+  /// Input Matrix 1
+  /// \param b
+  /// Input Matrix 2
+  ///
+  /// \return
+  /// This function returns a matrix that is the resulatant of adding two
+  /// input matricies.
+  ///
+  /// \sa
+  /// \ref Add(const Matrix<T> &a, const T &scalar)
   static Matrix<T> Add(const Matrix<T> &a, const Matrix<T> &b) {
       // Does not work if matricies are not the same size.
       if ((a.rows() != b.rows()) || (a.cols() != b.cols())) {
@@ -177,6 +205,13 @@ class CpuOperations {
     return (a.array() && b.array());
     // Will return a matrix due to implicit conversion
   }
+  /// This is a function that returns the inverse of a matrix.
+  ///
+  /// \param a
+  /// Input Matrix
+  ///
+  /// \return
+  /// This function returns a matrix that is the inverse of the input matrix.
   static Matrix<T> Inverse(const Matrix<T> &a) {
       // If the matrix is empty, it should not check for inverse.
       if (a.cols() == 0) {
@@ -197,36 +232,61 @@ class CpuOperations {
       return a.inverse();
     }
   }
-static Vector<T> Norm(const Matrix<T> &a,
+/// static Vector <T> Norm( const Matrix <T> &a,
+/// const int &p = 2, const int &axis = 0) calculates the norm of
+/// the values in an m x n dependent of the input p and axis.
+/// The norm is returned in the form of a vector. If the axis is 0,
+/// the norm will be calulated column wise and the size of the
+/// output vector will be dependent on n. If the axis is 1, the
+/// norm will be calculated row-wise and the size of the vector
+/// will be dependent on m.
+///
+/// \param a
+/// const Matrix <T> &a
+/// \param b
+/// \const int &p
+/// \param c
+/// \const int &axis
+///
+/// \return
+/// Vector <T>
+  static Vector<T> Norm(const Matrix<T> &a,
                       const int &p = 2,
                       const int &axis = 0) {
     int num_rows = a.rows();
     int num_cols = a.cols();
-    float nval = 0;
+    float norm_value = 0;
     if (axis == 0) {
     Vector<T> norm(num_cols);
      for (int j = 0; j < num_cols; j++) {
       for (int i = 0; i < num_rows; i++)
-         nval += pow(a(i, j), p);
-       norm(j) = pow(nval, (1.0/p));
-       nval = 0;
+         norm_value += pow(a(i, j), p);
+       norm(j) = pow(norm_value, (1.0/p));
+       norm_value = 0;
      }
      return norm;
     } else if (axis == 1) {
      Vector<T> norm(num_rows);
      for (int i = 0; i < num_rows; i++) {
       for (int j = 0; j < num_cols; j++)
-         nval += pow(a(i, j), p);
-       norm(i) = pow(nval, (1.0/p));
-       nval = 0;
+         norm_value += pow(a(i, j), p);
+       norm(i) = pow(norm_value, (1.0/p));
+       norm_value = 0;
      }
      return norm;
     } else {
       std::cerr << "Axis must be zero or one!";
-        exit(1);
+      exit(1);
     }
 }
   static T Determinant(const Matrix<T> &a);
+/// static int Rank(const Matrix <T> &a) is a function that returns
+///                                      the rank of a m x n matrix
+/// \param a
+/// Matrix<T> &a
+///
+/// \return
+/// This function returns an int value of the matrix's rank.
   static int Rank(const Matrix<T> &a) {
     // Rank of a matrix
     SvdSolver<T> svd;
@@ -260,6 +320,16 @@ static Vector<T> Norm(const Matrix<T> &a,
     // Trace of a matrix
     return a.trace();
   }
+  /// This is a function that calculates the dot product of two vectors.
+  ///
+  /// \param a
+  /// Input Vector 1
+  /// \param b
+  /// Input Vector 2
+  ///
+  /// \return
+  /// This function returns a value of type T which is the dot product of
+  /// the two vectors.
   static T DotProduct(const Vector<T> &a, const Vector<T> &b) {
       // Checks to see if the size of the two vectors are not the same
       if (a.size() != b.size()) {
@@ -279,7 +349,6 @@ static Vector<T> Norm(const Matrix<T> &a,
         return (a.dot(b));
     }
   }
-
 /// This is a function that calculates the "Outer Product of the input Vectors
 ///
 /// \param a
@@ -342,7 +411,21 @@ static Vector<T> Norm(const Matrix<T> &a,
     }
     return b;
   }
-  static Matrix<T> Normalize(const Matrix <T> &a, const int &p = 2,
+/// statix Matrix <T> Normalize(const Matrix <T> &a, const int &p
+/// =2, const int &axis = 0) normalizes a m x n matrix by element.
+///
+/// \param a
+/// const Matrix<T> &a
+/// \param b
+/// const int &p = 2
+/// \param c
+/// const int &axis = 0
+///
+/// \return
+/// Matrix <T>
+/// \sa
+/// \ref Norm
+  static Matrix<T> Normalize(const Matrix<T> &a, const int &p = 2,
                                                   const int &axis = 0) {
     int num_rows = a.rows();
     int num_cols = a.cols();
@@ -350,14 +433,14 @@ static Vector<T> Norm(const Matrix<T> &a,
     if (axis == 0) {
      b = a.transpose().array().colwise() / Norm(a, p, axis).array();
      return b.transpose();
-     } else if (axis == 1) {
-        b = a.array().colwise() / Norm(a, p, axis).array();
-        return b;
-     } else {
-        std::cerr << "Axis must be zero or one!";
-        exit(1);
-        }
-}
+    } else if (axis == 1) {
+     b = a.array().colwise() / Norm(a, p, axis).array();
+     return b;
+    } else {
+     std::cerr << "Axis must be zero or one!";
+     exit(1);
+    }
+  }
 };
 }  // namespace Nice
 #endif  // CPP_INCLUDE_CPU_OPERATIONS_H_
