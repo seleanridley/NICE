@@ -200,23 +200,23 @@ class CpuOperations {
 /// static Vector <T> Norm( const Matrix <T> &a,
 /// const int &p = 2, const int &axis = 0) calculates the norm of
 /// the values in an m x n dependent of the input p and axis.
-/// The norm is returned in the form of a vector. If the axis is 0, 
-/// the norm will be calulated column wise and the size of the 
+/// The norm is returned in the form of a vector. If the axis is 0,
+/// the norm will be calulated column wise and the size of the
 /// output vector will be dependent on n. If the axis is 1, the
 /// norm will be calculated row-wise and the size of the vector
-/// will be dependent on m.  
+/// will be dependent on m.
 ///
 /// \param a
 /// const Matrix <T> &a
 /// \param b
-/// \const int &p 
+/// \const int &p
 /// \param c
 /// \const int &axis
 ///
-/// \return 
+/// \return
 /// Vector <T>
-/// \sa 
-/// \ref Frobenius Norm : Frobenius Norm is similar to Norm where 
+/// \sa
+/// \ref Frobenius Norm : Frobenius Norm is similar to Norm where
 /// p is assumed to be 2 and the axis is assumed to be 0
   static Vector<T> Norm(const Matrix<T> &a,
                       const int &p = 2,
@@ -252,9 +252,9 @@ class CpuOperations {
 ///                                      the rank of a m x n matrix
 /// \param a
 /// Matrix<T> &a
-/// 
-/// \return 
-/// This function returns an int value of the matrix's rank. 
+///
+/// \return
+/// This function returns an int value of the matrix's rank.
   static int Rank(const Matrix<T> &a) {
     // Rank of a matrix
     SvdSolver<T> svd;
@@ -371,10 +371,11 @@ class CpuOperations {
     return b;
   }
 /// statix Matrix <T> Normalize(const Matrix <T> &a, const int &p
-/// =2, const int &axis = 0) normalizes a m x n matrix by element.
+/// =2, const int &axis = 0)
+/// This function returns a vector of normalizes a m x n matrix by element.
 ///
 /// \param a
-/// const Matrix<T> &a
+/// The data matrix to normalize
 /// \param b
 /// const int &p = 2
 /// \param c
@@ -399,6 +400,29 @@ class CpuOperations {
      std::cerr << "Axis must be zero or one!";
      exit(1);
     }
+}
+  static Vector<T> GetOrthogonal(const Vector<T> &a) {
+    if ( a.mean() == 0 )
+     std::cerr << "Vector can not be all zeros!";
+    Vector<T> b(a.size());
+    b.setOnes();
+    Vector<T> projection;
+    projection = ((a.dot(b))/(pow(a.norm(), 2))) * a;
+    b -= projection;
+    return b;
+}
+  static Vector<T> GetOrthogonal(const Matrix<T> &a) {
+    int num_cols = a.cols();
+    Vector<T> b;
+    b.setOnes(a.rows());
+    Vector<T> projection;
+    for (int j = 0; j < num_cols; j++) {
+      float Dotproduct = a.col(j).dot(b);
+      float MagnitudeSquared = pow((a.col(j).norm()), 2);
+      projection = (Dotproduct / MagnitudeSquared) * a.col(j);
+      b -= projection;
+    }
+    return b;
 }
 };
 }  // namespace Nice
