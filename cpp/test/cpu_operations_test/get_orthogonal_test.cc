@@ -32,20 +32,22 @@
 template<class T>
 class GetOrthogonalTest : public ::testing::Test {
  public:
-  Nice::Vector<T> vector_;
-  Nice::Vector<T> orthogonal_vector_;
+  Nice::Vector<T> a_;
+  Nice::Vector<T> b_;
 };
 
 typedef ::testing::Types<float, double> MyTypes;
 TYPED_TEST_CASE(GetOrthogonalTest, MyTypes);
 
 TYPED_TEST(GetOrthogonalTest, Test1) {
-  this->vector_.resize(3, 1);
-  this->vector_ << 1.0,
-                   2.0,
-                   3.0;
-  this->orthogonal_vector_ = Nice::CpuOperations<TypeParam>::GetOrthogonal(
-                                                             this->vector_);
-  float Dotproduct = this->vector_.dot(this->orthogonal_vector_);
+  this->a_.resize(3, 1);
+  this->a_ << 1.0,
+              2.0,
+              0.0;
+  this->b_.resize(3, 1);
+  this->b_.setRandom();
+  Nice::CpuOperations<TypeParam>::GetOrthogonal(this->a_,
+                                                this->b_);
+  float Dotproduct = this->a_.dot(this->b_);
   ASSERT_NEAR(Dotproduct, 0, 0.0001);
 }

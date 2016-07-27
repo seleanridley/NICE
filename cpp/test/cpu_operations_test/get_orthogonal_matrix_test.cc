@@ -41,10 +41,13 @@ TYPED_TEST_CASE(GetOrthogonalMatrixTest, MyTypes);
 
 TYPED_TEST(GetOrthogonalMatrixTest, Test1) {
   this->a_.resize(3, 3);
-  this-> a_<< 3.0, 0.0, 0.0,
-              0.0, 0.0, 2.0,
-              0.0, 1.0, 0.0;
-  this->b_ = Nice:: CpuOperations<TypeParam>::GetOrthogonal(this->a_);
+  this->a_<< 3.0, 0.0, 0.0,
+             0.0, 0.0, 2.0,
+             0.0, 1.0, 0.0;
+  this->b_.resize(3, 1);
+  this->b_.setRandom();
+  Nice:: CpuOperations<TypeParam>::GetOrthogonal(this->a_,
+                                                 this->b_);
   for (int j = 0; j < this->a_.cols(); j++) {
     float Dotproduct = this->a_.col(j).dot(this->b_);
     ASSERT_NEAR(Dotproduct, 0, 0.0001);
@@ -56,7 +59,10 @@ TYPED_TEST(GetOrthogonalMatrixTest, Test2) {
   this-> a_<< 1.0, 1.0, 1.0,
               0.0, sqrt(2.0), -1*sqrt(2.0),
              -1.0, 1.0, 1.0;
-  this->b_ = Nice:: CpuOperations<TypeParam>::GetOrthogonal(this->a_);
+  this->b_.resize(3, 1);
+  this->b_.setRandom();
+  Nice:: CpuOperations<TypeParam>::GetOrthogonal(this->a_,
+                                                 this->b_);
   for (int j = 0; j < this->a_.cols(); j++) {
     float Dotproduct = this->a_.col(j).dot(this->b_);
     ASSERT_NEAR(Dotproduct, 0, 0.0001);
