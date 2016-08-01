@@ -28,8 +28,10 @@
 #include <cmath>
 #include "include/matrix.h"
 #include "include/vector.h"
+#include "include/kernel_types.h"
 #include "Eigen/SVD"
 #include "include/svd_solver.h"
+#include "include/util.h"
 
 namespace Nice {
 
@@ -37,9 +39,24 @@ namespace Nice {
 template<typename T>
 class CpuOperations {
  public:
+  /// This is a function that calculates the transpose Matrix of the input Matrix
+  ///
+  /// \param a
+  /// Input Matrix
+  ///
+  /// \return
+  /// This function returns a Matrix of type T
   static Matrix<T> Transpose(const Matrix<T> &a) {
     return a.transpose();  // Return transpose
   }
+
+  /// This is a function that calculates the transpose Vector of the input Vector
+  ///
+  /// \param a
+  /// Input Vector
+  ///
+  /// \return
+  /// This function returns a Vector of type T
   static Vector<T> Transpose(const Vector<T> &a) {
     return a.transpose();
   }
@@ -195,8 +212,18 @@ class CpuOperations {
     }
     return b;
   }
+
+  /// This is a function that calculates the "logical and" of the two input
+  /// Matrices
+  ///
+  /// \param a
+  /// Input Matrix 1
+  /// \param b
+  /// Input Matrix 2
+  ///
+  /// \return
+  /// This function returns a Matrix of type bool
   static Matrix<bool> LogicalAnd(const Matrix<bool> &a, const Matrix<bool> &b) {
-    // This function returns the logical AND of two boolean matrices
     // Checks to see that the number of rows and columns are the same
     if ((a.rows() != b.rows()) || (a.cols() != b.cols())) {
       std::cerr << "MATRICES ARE NOT THE SAME SIZE!";
@@ -205,6 +232,7 @@ class CpuOperations {
     return (a.array() && b.array());
     // Will return a matrix due to implicit conversion
   }
+
   /// This is a function that returns the inverse of a matrix.
   ///
   /// \param a
@@ -232,6 +260,7 @@ class CpuOperations {
       return a.inverse();
     }
   }
+
 /// static Vector <T> Norm( const Matrix <T> &a,
 /// const int &p = 2, const int &axis = 0) calculates the norm of
 /// the values in an m x n dependent of the input p and axis.
@@ -287,6 +316,7 @@ class CpuOperations {
 ///
 /// \return
 /// This function returns an int value of the matrix's rank.
+
   static int Rank(const Matrix<T> &a) {
     // Rank of a matrix
     SvdSolver<T> svd;
@@ -316,10 +346,12 @@ class CpuOperations {
 ///
 /// \return
 /// This function returns a value of type T
+
   static T Trace(const Matrix<T> &a) {
     // Trace of a matrix
     return a.trace();
   }
+
   /// This is a function that calculates the dot product of two vectors.
   ///
   /// \param a
@@ -366,8 +398,24 @@ class CpuOperations {
     }
     return a * b.transpose();
   }
-  static Vector<T> LogicalAnd(const Vector<T> &a, const Vector<T> &b);
 
+  /// This is a function that calculates the "logical and" of the two input
+  /// Vectors
+  ///
+  /// \param a
+  /// Input Vector 1
+  /// \param b
+  /// Input Vector 2
+  ///
+  /// \return
+  /// This function returns a Vector of type bool
+  static Vector<bool> LogicalAnd(const Vector<T> &a, const Vector<T> &b) {
+  if ((a.rows() != b.rows()) || (a.cols() != b.cols())) {
+        std::cerr << "MATRICES ARE NOT THE SAME SIZE!";
+        exit(1);  // Exits the program
+      }
+      return (a.array() && b.array());
+  }
 /// This is a function that calculates the "logical or" of the two input
 /// Vectors
 ///
@@ -481,6 +529,57 @@ class CpuOperations {
       b -= projection;
     }
 }
+  }
+  /// Generates a kernel matrix from an input data_matrix
+  /// \param data_matrix
+  /// Input matrix whose rows represent samples and columns represent features
+  /// \param kernel_type
+  /// Kernel type could be chosen from Gaussian, Linear and Polynomial
+  /// \param constant
+  /// In Gaussian kernel, this is sigma;
+  /// In Polynomial kernel, this is constant c
+  /// In Linear kernel, this is c as well
+  /// \return
+  /// An nxn kernel matrix where n is the number of samples in data_matrix
+  static Matrix<T> GenKernelMatrix(
+      const Matrix<T> &data_matrix,
+      const KernelType kernel_type = kGaussianKernel,
+      const float constant = 1.0) {
+    int num_samples = data_matrix.rows();
+    // An n x n kernel matrix
+    Matrix<T> kernel_matrix(num_samples, num_samples);
+    if (kernel_type == kGaussianKernel) {
+      float sigma = constant;
+      // This for loop generates the kernel matrix using Gaussian kernel
+      for (int i = 0; i < num_samples; i++)
+        for (int j = 0; j < num_samples; j++) {
+          // Calculate the the norm of (x_i - x_j) for all (i, j) pairs
+          float i_j_dist = (data_matrix.row(i) - data_matrix.row(j)).norm();
+          kernel_matrix(i, j) = exp(-i_j_dist / (2 * sigma * sigma));
+        }
+    }
+    return kernel_matrix;
+  }
+
+  /// Generates a degree matrix D from an input kernel matrix
+  /// It also generates D^(-1/2)
+  /// \param kernel_matrix
+  /// Input matrix: a squared kernel matrix
+  /// \param degree_matrix
+  /// Output degree matrix D
+  /// \param degree_matrix_to_the_minus_half
+  /// Output matrix D^(-1/2)
+  static void GenDegreeMatrix(
+      const Matrix<T> &kernel_matrix,
+      Matrix<T> &degree_matrix,
+      Matrix<T> &degree_matrix_to_the_minus_half) {
+    // Generate the diagonal vector d_i and degree matrix D
+    Vector<T> d_i = kernel_matrix.rowwise().sum();
+    degree_matrix = d_i.asDiagonal();
+    // Generate matrix D^(-1/2)
+    degree_matrix_to_the_minus_half = d_i.array().sqrt().unaryExpr(
+        std::ptr_fun(util::reciprocal<T>)).matrix().asDiagonal();
+  }
 };
 }  // namespace Nice
 #endif  // CPP_INCLUDE_CPU_OPERATIONS_H_
