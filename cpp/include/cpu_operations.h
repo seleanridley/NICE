@@ -529,7 +529,6 @@ class CpuOperations {
       b -= projection;
     }
 }
-  }
   /// Generates a kernel matrix from an input data_matrix
   /// \param data_matrix
   /// Input matrix whose rows represent samples and columns represent features
