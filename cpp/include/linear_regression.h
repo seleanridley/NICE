@@ -129,9 +129,6 @@ class LinearRegression {
         std::cout<<"Done!"<<std::endl;
         std::cout<<"This took "<<v<<" iterations."<<std::endl;
         std::cout<<"The values of theta are: "<<"\n"<<theta<<std::endl;
-        Vector<T> yo;
-        yo = Predict();
-        std::cout<<"\n"<<yo<<std::endl;
         return theta;
       }
  private:
